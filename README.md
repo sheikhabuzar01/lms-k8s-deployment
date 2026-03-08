@@ -1,3 +1,5 @@
+## Follow the Commands Mention in the Lab File 
+
 ## Error After `terraform apply`
 
 After running `terraform apply`, you may see the following error:
