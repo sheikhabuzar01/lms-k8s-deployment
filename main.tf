@@ -20,15 +20,15 @@ module "eks" {
   cluster_name    = "library-eks"
   cluster_version = "1.30"
 
-  subnet_ids = ["subnet-0dc44180bd7bbb38c", "subnet-0d0f794c19c0a6fe6"]
-  vpc_id     = "vpc-0167ed7c0da35e954"
+  subnet_ids = ["<your-subnet-id>", "<your-subnet-id>"]
+  vpc_id     = "<your-vpc-id>"
 
   cluster_endpoint_public_access  = true
   cluster_endpoint_private_access = true
 
   access_entries = {
-    cli_user = {
-      principal_arn = "arn:aws:iam::709107513396:user/cli-user"
+    <your_user> = {
+      principal_arn = "arn:aws:iam::<your-user-code>:user/<your-user>"
 
       policy_associations = {
         admin = {
