@@ -39,7 +39,7 @@ module "eks" {
     }
 
     root_user = {
-      principal_arn = "arn:aws:iam::709107513396:root"
+      principal_arn = "arn:aws:iam::<your-user-code>:<your-user>"
 
       policy_associations = {
         admin = {
