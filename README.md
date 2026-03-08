@@ -1,5 +1,3 @@
-## Follow the Commands Mention in the Lab File 
-
 ## Error After `terraform apply`
 
 After running `terraform apply`, you may see the following error:
@@ -26,3 +24,6 @@ aws ec2 modify-subnet-attribute --subnet-id <your-subnet-id> --map-public-ip-on-
 ```bash
 aws ec2 modify-subnet-attribute --subnet-id <your-subnet-id> --map-public-ip-on-launch --region us-east-1
 ```
+
+## Follow the Commands Mention in the Lab File 
+
