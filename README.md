@@ -1,220 +1,28 @@
-# auto-k8s-deployment — EKS Lab
+## Error After `terraform apply`
 
-Deploy a Python Library Management System on Kubernetes using Terraform.
-
----
-
-## Prerequisites
-
-Make sure these are installed:
+After running `terraform apply`, you may see the following error:
 
 ```bash
-terraform -v
-docker -v
-kubectl version --client
-aws --version
+module.eks.module.eks_managed_node_group["worker_nodes"].aws_eks_node_group.this[0]: Creating...
+module.eks.module.eks_managed_node_group["worker_nodes"].aws_eks_node_group.this[0]: Still creating... [00m10s elapsed]
+
+Warning: Argument is deprecated
+
+Error: waiting for EKS Node Group create: unexpected state 'CREATE_FAILED', wanted target 'ACTIVE'.
+
+Ec2SubnetInvalidConfiguration: One or more Amazon EC2 Subnets
+[subnet-0dc44180bd7bbb38c, subnet-0d0f794c19c0a6fe6]
+does not automatically assign public IP addresses to instances launched into it.
+
 ```
 
----
-
-## Project Structure
-
-```
-lms-eks-deployment/
-  terraform-eks/
-    main.tf
-  k8s/
-    library-deployment.yaml
-    library-service.yaml
-```
-
----
-
-## Step 1 — Configure AWS CLI
+## Run the following commands to enable Auto Assign Public IP on your subnets:
 
 ```bash
-aws configure
+aws ec2 modify-subnet-attribute --subnet-id <your-subnet-id> --map-public-ip-on-launch --region us-east-1
 ```
-
-Verify your identity:
-
 ```bash
-aws sts get-caller-identity
+aws ec2 modify-subnet-attribute --subnet-id <your-subnet-id> --map-public-ip-on-launch --region us-east-1
 ```
 
----
-
-## Step 2 — Push Docker Image to ECR
-
-Authenticate Docker to ECR:
-
-```bash
-aws ecr get-login-password --region us-east-1 | docker login --username AWS --password-stdin <account-id>.dkr.ecr.us-east-1.amazonaws.com
-```
-
-Build image:
-
-```bash
-docker build -t lms-project .
-```
-
-Tag image:
-
-```bash
-docker tag lms-project:latest <account-id>.dkr.ecr.us-east-1.amazonaws.com/lms-project:latest
-docker tag lms-project:latest <account-id>.dkr.ecr.us-east-1.amazonaws.com/lms-project:1.0
-```
-
-Push image:
-
-```bash
-docker push <account-id>.dkr.ecr.us-east-1.amazonaws.com/lms-project:latest
-docker push <account-id>.dkr.ecr.us-east-1.amazonaws.com/lms-project:1.0
-```
-
-Verify image exists in ECR:
-
-```bash
-aws ecr describe-images --repository-name lms-project --region us-east-1
-```
-
----
-
-## Step 3 — Provision Infrastructure
-
-```bash
-terraform init
-terraform plan
-terraform apply
-```
-
-> Takes 10-15 minutes. Creates VPC, Subnets, IGW, Route Tables, EKS Cluster, and Worker Nodes automatically.
-
----
-
-## Step 4 — Configure kubectl
-
-```bash
-aws eks update-kubeconfig --region us-east-1 --name auto-k8s-deployment
-```
-
-Verify nodes are ready:
-
-```bash
-kubectl get nodes
-```
-
----
-
-## Step 5 — Deploy Application
-
-```bash
-kubectl apply -f k8s/library-deployment.yaml
-kubectl apply -f k8s/library-service.yaml
-```
-
----
-
-## Step 6 — Verify Deployment
-
-Check pods are running:
-
-```bash
-kubectl get pods
-```
-
-Check service and get external IP:
-
-```bash
-kubectl get svc
-```
-
-Test application in browser:
-
-```
-http://<external-ip>/
-http://<external-ip>/books
-http://<external-ip>/add/NewBook
-```
-
----
-
-## Step 7 — Test Scaling
-
-Scale up to 6 pods:
-
-```bash
-kubectl scale deployment library-deployment --replicas=6
-```
-
-Check pods:
-
-```bash
-kubectl get pods
-```
-
-Scale back down to 4:
-
-```bash
-kubectl scale deployment library-deployment --replicas=4
-```
-
----
-
-## Step 8 — Destroy (When Done)
-
-Always delete Kubernetes resources first to remove the LoadBalancer:
-
-```bash
-kubectl delete -f k8s/library-service.yaml
-kubectl delete -f k8s/library-deployment.yaml
-```
-
-Wait 2 minutes, then destroy infrastructure:
-
-```bash
-terraform destroy
-```
-
----
-
-## Useful Commands
-
-```bash
-# Check your AWS identity
-aws sts get-caller-identity
-
-# Check cluster nodes
-kubectl get nodes
-
-# Check pods
-kubectl get pods
-
-# Check service external IP
-kubectl get svc
-
-# Check why a pod is failing
-kubectl describe pod <pod-name>
-
-# Check images in ECR
-aws ecr describe-images --repository-name lms-project --region us-east-1
-
-# Check EKS cluster details
-aws eks describe-cluster --name auto-k8s-deployment --region us-east-1
-```
-
----
-
-## Infrastructure Details
-
-| Resource | Value |
-|---|---|
-| Cluster Name | auto-k8s-deployment |
-| Region | us-east-1 |
-| VPC CIDR | 10.0.0.0/16 |
-| Subnet 1 | 10.0.1.0/24 — us-east-1a |
-| Subnet 2 | 10.0.2.0/24 — us-east-1b |
-| Node Type | t3.medium |
-| Min Nodes | 1 |
-| Desired Nodes | 2 |
-| Max Nodes | 3 |
+## Follow the Commands Mention in the Lab File 
